@@ -18,6 +18,7 @@
     <Name>FlaskWebProject2</Name>
     <RootNamespace>FlaskWebProject2</RootNamespace>
     <InterpreterId>MSBuild|env|$(MSBuildProjectFullPath)</InterpreterId>
+    <SuppressPackageInstallationPrompt>True</SuppressPackageInstallationPrompt>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -31,10 +32,65 @@
     <Compile Include="app.py" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="bootstrap\.vs\bootstrap\FileContentIndex\38c8bbbc-4243-451c-9623-fc0d306e71c5.vsidx" />
+    <Content Include="bootstrap\.vs\bootstrap\v18\.wsuo" />
+    <Content Include="bootstrap\.vs\bootstrap\v18\DocumentLayout.json" />
+    <Content Include="bootstrap\.vs\slnx.sqlite" />
+    <Content Include="bootstrap\.vs\VSWorkspaceState.json" />
+    <Content Include="bootstrap\css\bootstrap-grid.css" />
+    <Content Include="bootstrap\css\bootstrap-grid.css.map" />
+    <Content Include="bootstrap\css\bootstrap-grid.min.css" />
+    <Content Include="bootstrap\css\bootstrap-grid.min.css.map" />
+    <Content Include="bootstrap\css\bootstrap-grid.rtl.css" />
+    <Content Include="bootstrap\css\bootstrap-grid.rtl.css.map" />
+    <Content Include="bootstrap\css\bootstrap-grid.rtl.min.css" />
+    <Content Include="bootstrap\css\bootstrap-grid.rtl.min.css.map" />
+    <Content Include="bootstrap\css\bootstrap-reboot.css" />
+    <Content Include="bootstrap\css\bootstrap-reboot.css.map" />
+    <Content Include="bootstrap\css\bootstrap-reboot.min.css" />
+    <Content Include="bootstrap\css\bootstrap-reboot.min.css.map" />
+    <Content Include="bootstrap\css\bootstrap-reboot.rtl.css" />
+    <Content Include="bootstrap\css\bootstrap-reboot.rtl.css.map" />
+    <Content Include="bootstrap\css\bootstrap-reboot.rtl.min.css" />
+    <Content Include="bootstrap\css\bootstrap-reboot.rtl.min.css.map" />
+    <Content Include="bootstrap\css\bootstrap-utilities.css" />
+    <Content Include="bootstrap\css\bootstrap-utilities.css.map" />
+    <Content Include="bootstrap\css\bootstrap-utilities.min.css" />
+    <Content Include="bootstrap\css\bootstrap-utilities.min.css.map" />
+    <Content Include="bootstrap\css\bootstrap-utilities.rtl.css" />
+    <Content Include="bootstrap\css\bootstrap-utilities.rtl.css.map" />
+    <Content Include="bootstrap\css\bootstrap-utilities.rtl.min.css" />
+    <Content Include="bootstrap\css\bootstrap-utilities.rtl.min.css.map" />
+    <Content Include="bootstrap\css\bootstrap.css" />
+    <Content Include="bootstrap\css\bootstrap.css.map" />
+    <Content Include="bootstrap\css\bootstrap.min.css" />
+    <Content Include="bootstrap\css\bootstrap.min.css.map" />
+    <Content Include="bootstrap\css\bootstrap.rtl.css" />
+    <Content Include="bootstrap\css\bootstrap.rtl.css.map" />
+    <Content Include="bootstrap\css\bootstrap.rtl.min.css" />
+    <Content Include="bootstrap\css\bootstrap.rtl.min.css.map" />
+    <Content Include="bootstrap\js\bootstrap.bundle.js" />
+    <Content Include="bootstrap\js\bootstrap.bundle.js.map" />
+    <Content Include="bootstrap\js\bootstrap.bundle.min.js" />
+    <Content Include="bootstrap\js\bootstrap.bundle.min.js.map" />
+    <Content Include="bootstrap\js\bootstrap.esm.js" />
+    <Content Include="bootstrap\js\bootstrap.esm.js.map" />
+    <Content Include="bootstrap\js\bootstrap.esm.min.js" />
+    <Content Include="bootstrap\js\bootstrap.esm.min.js.map" />
+    <Content Include="bootstrap\js\bootstrap.js" />
+    <Content Include="bootstrap\js\bootstrap.js.map" />
+    <Content Include="bootstrap\js\bootstrap.min.js" />
+    <Content Include="bootstrap\js\bootstrap.min.js.map" />
     <Content Include="requirements.txt" />
     <Content Include="static\css\main.css" />
+    <Content Include="templates\base.html" />
+    <Content Include="templates\create.html" />
     <Content Include="templates\form.html" />
     <Content Include="templates\index.html" />
+    <Content Include="templates\login.html" />
+    <Content Include="templates\posts.html" />
+    <Content Include="templates\post_detail.html" />
+    <Content Include="templates\register.html" />
   </ItemGroup>
   <ItemGroup>
     <Interpreter Include="env\">
@@ -48,6 +104,13 @@
     </Interpreter>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="bootstrap\" />
+    <Folder Include="bootstrap\.vs\" />
+    <Folder Include="bootstrap\.vs\bootstrap\" />
+    <Folder Include="bootstrap\.vs\bootstrap\FileContentIndex\" />
+    <Folder Include="bootstrap\.vs\bootstrap\v18\" />
+    <Folder Include="bootstrap\css\" />
+    <Folder Include="bootstrap\js\" />
     <Folder Include="static\" />
     <Folder Include="static\css\" />
     <Folder Include="templates\" />
