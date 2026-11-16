@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block title %}Мое избранное{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">Мое избранное ❤️</h2>
+
+<div class="row">
+    {% for item in saved_items %}
+    <div class="col-md-4 mb-4">
+        <!-- Обрати внимание: мы обращаемся к item.vibe, так как item - это запись из таблицы SavedVibe -->
+        <div class="card h-100 shadow-sm">
+            {% if item.vibe.video_url %}
+            <div class="ratio ratio-16x9">
+                <iframe src="{{ item.vibe.video_url }}" allowfullscreen></iframe>
+            </div>
+            {% elif item.vibe.image_url %}
+            <img src="{{ item.vibe.image_url }}" class="card-img-top" style="object-fit: cover; height: 200px;">
+            {% endif %}
+
+            <div class="card-body">
+                <span class="badge bg-secondary mb-2">{{ item.vibe.category }}</span>
+                <h5 class="card-title">{{ item.vibe.title }}</h5>
+                <p class="card-text text-muted">{{ item.vibe.text }}</p>
+            </div>
+
+            <div class="card-footer bg-white border-0">
+                <!-- Кнопка удаления из избранного -->
+                <form action="{{ url_for('remove_favorite', saved_id=item.id) }}" method="POST">
+                    <button type="submit" class="btn btn-sm btn-outline-secondary">Убрать из избранного</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="col-12">
+        <p class="text-muted">Вы пока ничего не сохранили. Ловите вайбы на главной странице!</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

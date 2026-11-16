@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Добавить новый Вайб</h2>
+<form method="POST" class="mt-4">
+    <div class="mb-3">
+        <label>Заголовок</label>
+        <input type="text" name="title" class="form-control" required>
+    </div>
+    <div class="mb-3">
+        <label>Текст (факт или описание)</label>
+        <textarea name="text" class="form-control" rows="3"></textarea>
+    </div>
+    <div class="mb-3">
+        <label>Ссылка на картинку (URL)</label>
+        <input type="url" name="image_url" class="form-control" placeholder="https://...">
+    </div>
+    <div class="mb-3">
+        <label>Ссылка на видео (Embed URL с YouTube)</label>
+        <input type="url" name="video_url" class="form-control" placeholder="https://www.youtube.com/embed/...">
+    </div>
+    <div class="mb-3">
+        <label>Категория</label>
+        <input type="text" name="category" class="form-control" placeholder="Наука, История, Факты...">
+    </div>
+    <button type="submit" class="btn btn-success">Добавить</button>
+</form>
+{% endblock %}

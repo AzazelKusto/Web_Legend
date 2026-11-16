@@ -44,7 +44,41 @@ header {
     .title .seperator {
         margin: 0 auto 10px;
     }
+/* Фиксированная высота для карточек */
+.vibe-card {
+    height: 450px; /* Высота всей карточки. Можешь поменять (например, 400px или 500px) */
+    display: flex;
+    flex-direction: column;
+}
 
+/* Фиксированная высота для картинок и видео */
+.vibe-media-container {
+    height: 220px; /* Высота верхней части с медиа */
+    width: 100%;
+    overflow: hidden; /* Обрезаем всё, что вылезает */
+    background-color: #f8f9fa; /* Светлый фон, если картинка не загрузилась */
+}
+
+    .vibe-media-container img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover; /* Картинка заполняет блок без искажений */
+    }
+
+    .vibe-media-container iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+    }
+
+/* Обрезка длинного текста (максимум 3 строки) */
+.vibe-text {
+    display: -webkit-box;
+    -webkit-line-clamp: 3; /* Количество строк */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
 .item {
     position: relative;
     margin-bottom: 30px;

@@ -3,6 +3,7 @@ This script runs the application using a development server.
 It contains the definition of routes and views for the application.
 """
 from datetime import datetime
+import random
 from flask import Flask, render_template, request, redirect, url_for, session,flash
 from markupsafe import escape
 from flask_sqlalchemy import SQLAlchemy
@@ -11,6 +12,8 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import DataRequired, Email, Length, EqualTo
 from werkzeug.security import generate_password_hash, check_password_hash
+from sqlalchemy import func
+from datetime import date
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///newflask.db'
 app.secret_key = 'super_secret_key'
@@ -43,13 +46,24 @@ class User(UserMixin, db.Model):
         return check_password_hash(self.password_hash, password)
 
 
-class Post(db.Model):
-    id = db.Column(db.Integer,primary_key = True) #будет создаваться для каждого поста спец.id
-    title = db.Column(db.String(300),nullable = False)
-    text = db.Column(db.Text,nullable = False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow) # <--- НОВАЯ СТРОКА
+class Vibe(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(200), nullable=False)
+    text = db.Column(db.Text, nullable=True)  # Текст (если есть)
+    image_url = db.Column(db.String(500), nullable=True)  # Ссылка на картинку
+    video_url = db.Column(db.String(500), nullable=True)  # Ссылка на видео (например, YouTube embed)
+    category = db.Column(db.String(50), default='Интересное')  # Тег: Наука, История, Факты
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+# Таблица для сохранения понравившегося контента (Связь Юзер-Вайб)
+class SavedVibe(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    author = db.relationship('User', backref=db.backref('posts', lazy=True))
+    vibe_id = db.Column(db.Integer, db.ForeignKey('vibe.id'), nullable=False)
+    saved_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    user = db.relationship('User', backref='saved_vibes')
+    vibe = db.relationship('Vibe')
 
 class RegisterForm(FlaskForm):
     username = StringField("Имя", validators=[DataRequired(), Length(3, 50)])
@@ -66,7 +80,8 @@ class LoginForm(FlaskForm):
 
 # Make the WSGI interface available at the top level so wfastcgi can get it.
 wsgi_app = app.wsgi_app
-@app.route("/", methods=["GET","POST"])  
+@app.route("/")
+@login_required
 def l():
     return render_template("base.html")
 @app.route("/greet", methods=["GET","POST"])  
@@ -84,26 +99,43 @@ def greet():
     # Этот код сработает только при GET-запросе (в том числе после редиректа)
     # Берем имя из session. Если там пусто, пишем "Гость"
     #username = session.get('username', 'Гость')
-    habits = ["Зарядка", "Чтение 30 минут", "Стакан воды утром"]
-    return render_template("index.html",habits = habits,app_name = 'Трекер')  # Возвращаем ответ
+    return render_template("begin.html")  # Возвращаем ответ
 
-@app.route("/post/<int:post_id>")
-def post_detail(post_id):
-    post = Post.query.get_or_404(post_id) # get_or_404 защищает от несуществующих id
-    return render_template('post_detail.html', post=post)
+#@app.route("/post/<int:post_id>")
+#def post_detail(post_id):
+    #post = Post.query.get_or_404(post_id) # get_or_404 защищает от несуществующих id
+    #return render_template('post_detail.html', post=post)
 
-@app.route("/post/<int:post_id>/delete", methods=['POST'])
-def delete_post(post_id):
-    post = Post.query.get_or_404(post_id)
-    db.session.delete(post)
-    db.session.commit()
-    flash('Пост удален', 'info')
-    return redirect(url_for('posts'))
+#@app.route("/post/<int:post_id>/delete", methods=['POST'])
+#def delete_post(post_id):
+    #post = Post.query.get_or_404(post_id)
+    #db.session.delete(post)
+    #db.session.commit()
+    #flash('Пост удален', 'info')
+    #return redirect(url_for('posts'))
+@app.route("/index")
+@login_required
+def index():
+    # 1. Получаем ВСЕ вайбы из базы
+    all_vibes = Vibe.query.all()
 
+    # 2. Создаем seed на основе сегодняшней даты (например, 20261103)
+    day_seed = int(date.today().strftime("%Y%m%d"))
+
+    # 3. Перемешиваем список с этим seed. 
+    # random.Random(day_seed) гарантирует, что сегодня порядок будет один и тот же,
+    # а завтра (когда дата изменится) — новый.
+    rng = random.Random(day_seed)
+    rng.shuffle(all_vibes)
+
+    # 4. Берем первые 3 записи
+    daily_vibes = all_vibes[:3]
+
+    return render_template("index.html", vibes=daily_vibes)
 @app.route("/register", methods=['GET', 'POST'])
 def register():
     if current_user.is_authenticated: # Если уже вошел, нечего тут делать
-        return redirect(url_for('posts'))
+        return redirect(url_for('greet'))
         
     form = RegisterForm()
     if form.validate_on_submit():
@@ -127,7 +159,7 @@ def register():
 @app.route("/login", methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
-        return redirect(url_for('posts'))
+        return redirect(url_for('greet'))
         
     form = LoginForm()
     if form.validate_on_submit():
@@ -135,47 +167,115 @@ def login():
         if user and user.check_password(form.password.data):
             login_user(user) # Вот она, магия входа!
             flash('Вы вошли в систему!', 'success')
-            return redirect(url_for('posts'))
+            return redirect(url_for('index'))
         else:
             flash('Неверный email или пароль', 'danger')
             
     return render_template('login.html', form=form)
+
+@app.route("/add_vibe", methods=["GET", "POST"])
+@login_required
+def add_vibe():
+    # Простейшая защита: только пользователь с именем 'admin' может добавлять контент
+    if current_user.username != 'admin':
+        flash('У вас нет прав на это действие', 'danger')
+        return redirect(url_for('index'))
+
+    if request.method == "POST":
+        title = request.form.get("title")
+        text = request.form.get("text")
+        image_url = request.form.get("image_url")
+        video_url = request.form.get("video_url")
+        category = request.form.get("category")
+
+        new_vibe = Vibe(title=title, text=text, image_url=image_url, video_url=video_url, category=category)
+        db.session.add(new_vibe)
+        db.session.commit()
+        flash('Вайб добавлен в базу!', 'success')
+        return redirect(url_for('index'))
+
+    return render_template("add_vibe.html")
+
 
 @app.route("/logout")
 @login_required
 def logout():
     logout_user()
     flash('Вы вышли из системы.', 'info')
-    return redirect(url_for('posts'))
+    return redirect(url_for('index'))
 
-@app.route("/posts")
-@login_required  # <--- Добавляем защиту, чтобы анонимы не зашли
-def posts():
+#@app.route("/posts")
+#@login_required  # <--- Добавляем защиту, чтобы анонимы не зашли
+#def posts():
     # Фильтруем: только посты текущего пользователя
-    posts = Post.query.filter_by(user_id=current_user.id).order_by(Post.created_at.desc()).all() 
-    return render_template('posts.html', posts=posts)
+    #posts = Post.query.filter_by(user_id=current_user.id).order_by(Post.created_at.desc()).all() 
+    #return render_template('posts.html', posts=posts)
 
-@app.route('/create', methods=['GET', 'POST'])
-@login_required  # <--- ВОТ ЭТА МАГИЯ. Без входа сюда не пустит
-def create():
-    if request.method == 'POST':
-        title = request.form['title']
-        text = request.form['text']
+#@app.route('/create', methods=['GET', 'POST'])
+#@login_required  # <--- ВОТ ЭТА МАГИЯ. Без входа сюда не пустит
+#def create():
+    #if request.method == 'POST':
+        #title = request.form['title']
+        #text = request.form['text']
         # Привязываем пост к текущему пользователю:
-        post = Post(text=text, title=title, user_id=current_user.id) 
+        #post = Post(text=text, title=title, user_id=current_user.id) 
        
-        try:
-            db.session.add(post)
-            db.session.commit()
-            flash('Пост успешно создан!', 'success')
-            return redirect(url_for('posts'))
-        except Exception as e:
-            flash(f'Ошибка: {e}', 'danger')
-            return redirect(url_for('create'))
+        #try:
+            #db.session.add(post)
+            #db.session.commit()
+            #flash('Пост успешно создан!', 'success')
+            #return redirect(url_for('posts'))
+        #except Exception as e:
+            #flash(f'Ошибка: {e}', 'danger')
+            #return redirect(url_for('create'))
+    #else:
+        #return render_template('create.html')
+@app.route("/favorites")
+@login_required
+def favorites():
+    # Достаем все сохраненные вайбы текущего пользователя, сортируем по дате (новые сверху)
+    # Благодаря relationship в модели SavedVibe, у нас есть доступ к объекту vibe
+    saved_items = SavedVibe.query.filter_by(user_id=current_user.id).order_by(SavedVibe.saved_at.desc()).all()
+    return render_template("favorites.html", saved_items=saved_items)
+
+@app.route("/remove_favorite/<int:saved_id>", methods=["POST"])
+@login_required
+def remove_favorite(saved_id):
+    # Ищем запись по ID и проверяем, что она принадлежит текущему пользователю
+    item = SavedVibe.query.filter_by(id=saved_id, user_id=current_user.id).first_or_404()
+    db.session.delete(item)
+    db.session.commit()
+    flash('Удалено из избранного', 'info')
+    return redirect(url_for('favorites'))
+
+@app.route("/save/<int:vibe_id>", methods=["POST"])
+@login_required
+def save_vibe(vibe_id):
+    # Проверяем, не сохранял ли уже этот пользователь этот вайб
+    existing = SavedVibe.query.filter_by(user_id=current_user.id, vibe_id=vibe_id).first()
+    
+    if existing:
+        flash('Ты уже сохранял это!', 'info')
     else:
-        return render_template('create.html')
+        saved = SavedVibe(user_id=current_user.id, vibe_id=vibe_id)
+        db.session.add(saved)
+        db.session.commit()
+        flash('Добавлено в избранное! ❤️', 'success')
+        
+    return redirect(url_for('index'))
 
-
+@app.route("/delete_vibe/<int:vibe_id>", methods=["POST"])
+@login_required
+def delete_vibe(vibe_id):
+    if current_user.username != 'admin':
+        flash('У вас нет прав', 'danger')
+        return redirect(url_for('index'))
+        
+    vibe = Vibe.query.get_or_404(vibe_id)
+    db.session.delete(vibe)
+    db.session.commit()
+    flash('Вайб удален из базы', 'success')
+    return redirect(url_for('index'))
 
 with app.app_context():
     db.create_all()
