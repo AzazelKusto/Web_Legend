@@ -155,3 +155,33 @@ header {
                 opacity: 1;
                 font-weight: 300;
             }
+/* Делаем карточку кликабельной и добавляем анимацию */
+.vibe-card {
+    position: relative; /* Обязательно для работы stretched-link */
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Плавная анимация */
+}
+
+    /* Эффект при наведении на карточку */
+    .vibe-card:hover {
+        transform: translateY(-5px); /* Карточка приподнимается вверх */
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2) !important; /* Усиливаем тень */
+    }
+
+        /* Затемнение медиа-контента (картинки/видео) при наведении */
+        .vibe-card:hover .vibe-media-container::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.3); /* Черный цвет с прозрачностью 30% */
+            z-index: 1; /* Затемнение поверх картинки, но под ссылкой */
+            transition: background-color 0.3s ease;
+        }
+
+/* Убедимся, что контейнер медиа имеет position relative */
+.vibe-media-container {
+    position: relative;
+    /* ... твои старые стили для height и overflow ... */
+}

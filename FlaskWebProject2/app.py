@@ -14,6 +14,12 @@ from wtforms.validators import DataRequired, Email, Length, EqualTo
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import func
 from datetime import date
+import os
+from werkzeug.utils import secure_filename
+from flask import current_app
+
+
+
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///newflask.db'
 app.secret_key = 'super_secret_key'
@@ -81,9 +87,18 @@ class LoginForm(FlaskForm):
 # Make the WSGI interface available at the top level so wfastcgi can get it.
 wsgi_app = app.wsgi_app
 @app.route("/")
-@login_required
 def l():
-    return render_template("base.html")
+    if not current_user.is_authenticated:
+        return render_template("begin.html")
+    
+    else:
+        all_vibes = Vibe.query.all()
+        day_seed = int(date.today().strftime("%Y%m%d"))
+        rng = random.Random(day_seed)
+        rng.shuffle(all_vibes)
+        daily_vibes = all_vibes[:3]
+
+        return render_template("index.html", vibes=daily_vibes)
 @app.route("/greet", methods=["GET","POST"])  
 def greet():
     #username = request.form["name"]  # Получаем данные из формы
@@ -173,26 +188,47 @@ def login():
             
     return render_template('login.html', form=form)
 
+
 @app.route("/add_vibe", methods=["GET", "POST"])
 @login_required
 def add_vibe():
-    # Простейшая защита: только пользователь с именем 'admin' может добавлять контент
     if current_user.username != 'admin':
-        flash('У вас нет прав на это действие', 'danger')
+        flash('У вас нет прав на добавление контента', 'danger')
         return redirect(url_for('index'))
 
     if request.method == "POST":
         title = request.form.get("title")
         text = request.form.get("text")
+        category = request.form.get("category")
+        
+        # Получаем текстовые ссылки (если админ вставил их вручную)
         image_url = request.form.get("image_url")
         video_url = request.form.get("video_url")
-        category = request.form.get("category")
+
+        # --- ОБРАБОТКА ЗАГРУЖЕННОГО ФАЙЛА КАРТИНКИ ---
+        image_file = request.files.get("image_file")
+        if image_file and image_file.filename != '':
+            # secure_filename защищает от взлома (убирает опасные символы из имени файла)
+            filename = secure_filename(image_file.filename)
+            
+            # Путь для сохранения файла на диске
+            save_path = os.path.join(current_app.root_path, 'static', 'uploads', 'images', filename)
+            image_file.save(save_path)
+            
+            # Записываем в базу путь для HTML
+            image_url = f'/static/uploads/images/{filename}'
+
+        # (Здесь можно добавить аналогичный код для видео, если нужно)
 
         new_vibe = Vibe(title=title, text=text, image_url=image_url, video_url=video_url, category=category)
-        db.session.add(new_vibe)
-        db.session.commit()
-        flash('Вайб добавлен в базу!', 'success')
-        return redirect(url_for('index'))
+        
+        try:
+            db.session.add(new_vibe)
+            db.session.commit()
+            flash('Вайб успешно добавлен!', 'success')
+            return redirect(url_for('index'))
+        except Exception as e:
+            flash(f'Ошибка: {e}', 'danger')
 
     return render_template("add_vibe.html")
 
@@ -276,6 +312,14 @@ def delete_vibe(vibe_id):
     db.session.commit()
     flash('Вайб удален из базы', 'success')
     return redirect(url_for('index'))
+
+@app.route("/vibe/<int:vibe_id>")
+@login_required  # Чтобы незарегистрированные не могли смотреть статьи
+def vibe_detail(vibe_id):
+    # Ищем вайб по ID. Если не найден — выдаст ошибку 404
+    vibe = Vibe.query.get_or_404(vibe_id)
+    return render_template("vibe_detail.html", vibe=vibe)
+
 
 with app.app_context():
     db.create_all()

@@ -1,27 +1,43 @@
 {% extends 'base.html' %}
 {% block content %}
 <h2>Добавить новый Вайб</h2>
-<form method="POST" class="mt-4">
+<!-- ОБЯЗАТЕЛЬНО добавь enctype -->
+<form method="POST" action="" enctype="multipart/form-data">
     <div class="mb-3">
-        <label>Заголовок</label>
+        <label class="form-label">Заголовок</label>
         <input type="text" name="title" class="form-control" required>
     </div>
+
     <div class="mb-3">
-        <label>Текст (факт или описание)</label>
+        <label class="form-label">Текст</label>
         <textarea name="text" class="form-control" rows="3"></textarea>
     </div>
+
     <div class="mb-3">
-        <label>Ссылка на картинку (URL)</label>
+        <label class="form-label">Категория</label>
+        <input type="text" name="category" class="form-control">
+    </div>
+
+    <hr>
+    <p class="text-muted">Загрузите файл ИЛИ вставьте ссылку</p>
+
+    <!-- НОВОЕ ПОЛЕ: Загрузка файла с компьютера -->
+    <div class="mb-3">
+        <label class="form-label">Загрузить картинку с компьютера</label>
+        <input type="file" name="image_file" class="form-control" accept="image/*">
+    </div>
+
+    <!-- Старое поле: Ссылка на картинку -->
+    <div class="mb-3">
+        <label class="form-label">...ИЛИ ссылка на картинку (URL)</label>
         <input type="url" name="image_url" class="form-control" placeholder="https://...">
     </div>
+
     <div class="mb-3">
-        <label>Ссылка на видео (Embed URL с YouTube)</label>
+        <label class="form-label">Ссылка на видео (YouTube Embed URL)</label>
         <input type="url" name="video_url" class="form-control" placeholder="https://www.youtube.com/embed/...">
     </div>
-    <div class="mb-3">
-        <label>Категория</label>
-        <input type="text" name="category" class="form-control" placeholder="Наука, История, Факты...">
-    </div>
-    <button type="submit" class="btn btn-success">Добавить</button>
+
+    <button type="submit" class="btn btn-success">Опубликовать</button>
 </form>
 {% endblock %}

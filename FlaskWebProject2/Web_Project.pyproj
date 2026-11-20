@@ -92,7 +92,7 @@
     <Content Include="templates\index.html" />
     <Content Include="templates\login.html" />
     <Content Include="templates\posts.html" />
-    <Content Include="templates\post_detail.html" />
+    <Content Include="templates\vibe_detail.html" />
     <Content Include="templates\register.html" />
   </ItemGroup>
   <ItemGroup>
@@ -125,6 +125,8 @@
     <Folder Include="bootstrap\js\" />
     <Folder Include="static\" />
     <Folder Include="static\css\" />
+    <Folder Include="static\uploads\" />
+    <Folder Include="static\uploads\images\" />
     <Folder Include="templates\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.Web.targets" />

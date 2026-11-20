@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block title %}{{ vibe.title }}{% endblock %}
+
+{% block content %}
+<!-- Убрали justify-content-center, чтобы блок прижался к краям -->
+<div class="row">
+    <!-- Заменили col-lg-10 на col-12, чтобы занять всю доступную ширину -->
+    <div class="col-12">
+
+        <a href="{{ url_for('index') }}" class="btn btn-outline-secondary mb-4">← Назад к вайбам</a>
+
+        <div class="card shadow-sm border-0 overflow-hidden">
+            <div class="row g-0">
+
+                <!-- ЛЕВАЯ ЧАСТЬ: ТЕКСТ (занимает 7 колонок) -->
+                <div class="col-md-7">
+                    <div class="card-body p-4 p-md-5 h-100 d-flex flex-column">
+                        <span class="badge bg-primary mb-3 align-self-start">{{ vibe.category }}</span>
+                        <h1 class="card-title mb-3">{{ vibe.title }}</h1>
+                        <p class="text-muted small mb-4">Опубликовано: {{ vibe.created_at.strftime('%d.%m.%Y') }}</p>
+
+                        <hr>
+
+                        <p class="card-text fs-5 flex-grow-1" style="line-height: 1.8; white-space: pre-wrap;">{{ vibe.text }}</p>
+                    </div>
+                </div>
+
+                <!-- ПРАВАЯ ЧАСТЬ: МЕДИА (занимает 5 колонок) -->
+                {% if vibe.video_url or vibe.image_url %}
+                <div class="col-md-5 position-relative bg-dark">
+
+                    {% if vibe.video_url %}
+                    <div class="d-flex align-items-center h-100 w-100">
+                        <div class="ratio ratio-16x9 w-100">
+                            <iframe src="{{ vibe.video_url }}" allowfullscreen></iframe>
+                        </div>
+                    </div>
+                    {% elif vibe.image_url %}
+                    <img src="{{ vibe.image_url }}" class="w-100 h-100 object-fit-cover position-absolute" alt="{{ vibe.title }}">
+                    {% endif %}
+
+                </div>
+                {% endif %}
+
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

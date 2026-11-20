@@ -5,19 +5,20 @@
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1>Твой вайб на сегодня, {{ current_user.username }} ✨</h1>
 </div>
-
 <div class="row">
     {% for vibe in vibes %}
     <div class="col-md-4 mb-4">
         <div class="card vibe-card shadow-sm">
 
+            <!-- 1. Делаем ссылку растянутой на всю карточку -->
+            <!-- Куда вести пользователя? Пока поставим заглушку href="#" -->
+            <a href="{{ url_for('vibe_detail', vibe_id=vibe.id) }}" class="stretched-link"></a>
             <div class="vibe-media-container">
                 {% if vibe.video_url %}
                 <iframe src="{{ vibe.video_url }}" allowfullscreen></iframe>
                 {% elif vibe.image_url %}
                 <img src="{{ vibe.image_url }}" alt="{{ vibe.title }}">
                 {% else %}
-                <!-- Если нет ни видео, ни картинки, показываем заглушку -->
                 <div class="d-flex align-items-center justify-content-center h-100 text-muted">
                     📝 Только текст
                 </div>
@@ -30,14 +31,15 @@
                 <p class="card-text text-muted vibe-text">{{ vibe.text }}</p>
             </div>
 
-            <div class="card-footer bg-white border-top-0 mt-auto d-flex justify-content-between align-items-center">
+            <!-- 2. В подвал добавляем position-relative и z-index, чтобы кнопки работали поверх stretched-link -->
+            <div class="card-footer bg-white border-top-0 mt-auto d-flex justify-content-between align-items-center position-relative" style="z-index: 2;">
                 <small class="text-muted">{{ vibe.created_at.strftime('%d.%m.%Y') }}</small>
 
                 <!-- Форма для сохранения -->
                 <form action="{{ url_for('save_vibe', vibe_id=vibe.id) }}" method="POST">
                     <button type="submit" class="btn btn-sm btn-outline-danger">❤️ В избранное</button>
                 </form>
-                <!-- Внутри card-footer на главной странице -->
+
                 {% if current_user.is_authenticated and current_user.username == 'admin' %}
                 <form action="{{ url_for('delete_vibe', vibe_id=vibe.id) }}" method="POST" class="ms-2">
                     <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Удалить этот вайб?');">Удалить</button>
